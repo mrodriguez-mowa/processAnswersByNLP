@@ -17,7 +17,9 @@ import pe.com.nlp.classifier.service.AnswersService;
 import pe.com.nlp.classifier.tools.JsonParse;
 import pe.com.nlp.classifier.tools.MongoConnector;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 
 @SpringBootApplication
 @PropertySource("${path.main.properties}")
@@ -40,16 +42,18 @@ public class ClassifierApplication {
 
 	}
 
-
-
 	public static void main(String[] args) {
 		SpringApplication.run(ClassifierApplication.class, args);
 		log.info("INICIANDO CLASIFICACIÓN DE INCOMING POR NLP");
 		AutomaticProcess automaticProcess = automaticProcessRepository.findByName("processAnswersByNLP");
 		if (automaticProcess.getStatus() == 1) {
 			log.info("ACTUALIZANDO A ESTADO 0 EL PROCESO");
+			LocalDateTime lastExecute = automaticProcess.getLastExecute();
 			automaticProcessRepository.changeStatusAutomaticProcesses(0, automaticProcess.getId());
-			ArrayList<IncomingMessage> messagesToday = incomingMessageRepository.getIncomingMessagesToday();
+			AutomaticProcess newAutomaticProcess = automaticProcessRepository.findByName("processAnswersByNLP");
+			LocalDateTime currentExecute = newAutomaticProcess.getLastExecute();
+
+			ArrayList<IncomingMessage> messagesToday = incomingMessageRepository.getIncomingMessagesToday(lastExecute, currentExecute);
 			if (messagesToday.size() > 0) {
 				log.info("EMPIEZA LÓGICA PARA CLASIFICAR POR NLP");
 				ArrayList<Integer> idArray = new ArrayList();
@@ -57,16 +61,16 @@ public class ClassifierApplication {
 					idArray.add(message.getId());
 				}
 				JsonArray responses = answersService.classifyAnswersByNLP(messagesToday);
-				System.out.println(responses.size());
+				log.info("MENSAJES ENCONTRADOS:"+ messagesToday.size());
 				if (responses != null) {
 					ArrayList<IncomingMessage> parsedResponse = jsonParse.convertJsonIntoArrayIncoming(responses);
 					incomingMongoRepository.insertIncomingMongoDB(mongoDB, parsedResponse);
-					incomingMessageRepository.updateNlpStatusMessage(idArray, 1);
 				}
-				incomingMessageRepository.updateNlpStatusMessage(idArray, 1);
+				automaticProcessRepository.changeStatusAutomaticProcesses(1, automaticProcess.getId());
 				log.info("CERRADO!");
 			} else {
 				log.warn("NO HAY MENSAJES PARA PROCESAR");
+				automaticProcessRepository.changeStatusAutomaticProcesses(1, automaticProcess.getId());
 			}
 		} else {
 			log.info("PROCESO NO ACTIVO O EN CURSO");

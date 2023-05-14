@@ -11,8 +11,6 @@ import pe.com.nlp.classifier.entity.AutomaticProcess;
 @Repository
 public interface AutomaticProcessRepository extends JpaRepository<AutomaticProcess, Integer> {
     AutomaticProcess findByName(String name);
-
-    // insert into usrsms.automatic_processes(name, status, last_execute) values ('processAnswersByNLP', 1, now())
     @Modifying
     @Transactional
     @Query(value = "update usrsms.automatic_processes SET status = :status, last_execute = now() WHERE id = :id", nativeQuery = true)
