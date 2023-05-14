@@ -24,6 +24,7 @@ public class IncomingMongoRepository {
             document.append("text", incomingMessage.getTextMessage());
             document.append("received_date", incomingMessage.getReceivedDate());
             document.append("qualification", incomingMessage.getNlpClassification());
+            document.append("model", incomingMessage.getTrainedByModel());
             documents.add(document);
         }
         try {

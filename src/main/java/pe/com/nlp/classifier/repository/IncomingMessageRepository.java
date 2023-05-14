@@ -15,7 +15,7 @@ public interface IncomingMessageRepository extends JpaRepository<IncomingMessage
 
     // alter table usrsms.incoming_message add column nlp_status integer
     @Modifying
-    @Query(value="SELECT * FROM usrsms.incoming_message where date_trunc('day', received_date) = CURRENT_DATE AND nlp_status = 0 LIMIT 100 \n", nativeQuery = true)
+    @Query(value="SELECT * FROM usrsms.incoming_message where date_trunc('day', received_date) = CURRENT_DATE - 1 AND nlp_status = 0 LIMIT 100 \n", nativeQuery = true)
     ArrayList<IncomingMessage> getIncomingMessagesToday();
 
     @Modifying

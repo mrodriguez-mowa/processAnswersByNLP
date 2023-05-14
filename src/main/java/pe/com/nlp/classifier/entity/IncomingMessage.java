@@ -23,4 +23,10 @@ public class IncomingMessage {
     private String nlpClassification;
     @Getter @Setter @Transient
     private String trainedByModel;
+    @Getter @Setter @Transient
+    private String dateForPythonAPI;
+    public IncomingMessage() {
+    }
+
+
 }
