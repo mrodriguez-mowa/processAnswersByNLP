@@ -2,6 +2,7 @@ package pe.com.nlp.classifier.service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.com.nlp.classifier.entity.IncomingMessage;
@@ -17,12 +18,14 @@ import java.util.ArrayList;
 
 public class AnswersService {
     private static final Logger log = LoggerFactory.getLogger(AnswersService.class);
+    @Setter
+    ArrayList<IncomingMessage> incomingMessages = new ArrayList<>();
+    @Setter
+    ArrayList<IncomingMessage> alwaysPositive = new ArrayList<>();
 
-    public JsonArray classifyAnswersByNLP (ArrayList<IncomingMessage> incomingMessages) {
-        ArrayList<IncomingMessage> alwaysPositive = new ArrayList<>();
-        ArrayList<IncomingMessage> messagesToValidate = new ArrayList<>();
-        JsonArray jsonResponse = null;
-        // LOS MENSAJES QUE REPRESENTAN LLAMADAS DE CLIENTES SIEMPRE SERÁN POSITIVOS
+    ArrayList<IncomingMessage> messagesToValidate = new ArrayList<>();
+
+    public void setMessagesToValidate(ArrayList<IncomingMessage> incomingMessages) {
         for(IncomingMessage message: incomingMessages) {
             if(message.getTextMessage().toLowerCase().contains("MOWA TE INFORMA:")) {
                 alwaysPositive.add(message);
@@ -32,10 +35,14 @@ public class AnswersService {
                 messagesToValidate.add(message);
             }
         }
+    }
+    public JsonArray classifyAnswersByNLP () {
 
         // JSON PARA LOS MODELOS
         Gson gson = new Gson();
         String jsonPayload = gson.toJson(messagesToValidate);
+
+        JsonArray jsonResponse = null;
 
         try {
             URL url = new URL("http://localhost:5000/api/trained-model");

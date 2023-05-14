@@ -19,7 +19,6 @@ import pe.com.nlp.classifier.tools.MongoConnector;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 
 @SpringBootApplication
 @PropertySource("${path.main.properties}")
@@ -28,13 +27,13 @@ public class ClassifierApplication {
 
 	private static AutomaticProcessRepository automaticProcessRepository;
 	private static IncomingMessageRepository incomingMessageRepository;
-	private static MongoConnector mongoConnector = new MongoConnector();
-	private static MongoDatabase mongoDB = mongoConnector.mongoConnection();
+	private static final MongoConnector mongoConnector = new MongoConnector();
+	private static final MongoDatabase mongoDB = mongoConnector.mongoConnection();
 
-	private static IncomingMongoRepository incomingMongoRepository = new IncomingMongoRepository();
-	private static AnswersService answersService = new AnswersService();
+	private static final IncomingMongoRepository incomingMongoRepository = new IncomingMongoRepository();
+	private static final AnswersService answersService = new AnswersService();
 
-	private static JsonParse jsonParse = new JsonParse();
+	private static final JsonParse jsonParse = new JsonParse();
 	@Autowired
 	ClassifierApplication(AutomaticProcessRepository automaticProcessRepository, IncomingMessageRepository incomingMessageRepository) {
 		ClassifierApplication.automaticProcessRepository = automaticProcessRepository;
@@ -60,7 +59,10 @@ public class ClassifierApplication {
 				for(IncomingMessage message: messagesToday){
 					idArray.add(message.getId());
 				}
-				JsonArray responses = answersService.classifyAnswersByNLP(messagesToday);
+				// SETEANDO MENSAJES PARA USAR EN TODOS LOS MODELOS
+				answersService.setMessagesToValidate(messagesToday);
+
+				JsonArray responses = answersService.classifyAnswersByNLP();
 				log.info("MENSAJES ENCONTRADOS:"+ messagesToday.size());
 				if (responses != null) {
 					ArrayList<IncomingMessage> parsedResponse = jsonParse.convertJsonIntoArrayIncoming(responses);
