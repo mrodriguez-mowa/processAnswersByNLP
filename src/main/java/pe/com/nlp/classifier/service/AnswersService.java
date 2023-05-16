@@ -45,7 +45,7 @@ public class AnswersService {
         JsonArray jsonResponse = null;
 
         try {
-            URL url = new URL("http://localhost:5000/api/trained-model");
+            URL url = new URL("http://34.232.95.220:6000/api/trained-model");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");

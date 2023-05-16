@@ -48,11 +48,11 @@ public class ClassifierApplication {
 		if (automaticProcess.getStatus() == 1) {
 			log.info("ACTUALIZANDO A ESTADO 0 EL PROCESO");
 			LocalDateTime lastExecute = automaticProcess.getLastExecute();
-			automaticProcessRepository.changeStatusAutomaticProcesses(0, automaticProcess.getId());
+			// automaticProcessRepository.changeStatusAutomaticProcesses(0, automaticProcess.getId());
 			AutomaticProcess newAutomaticProcess = automaticProcessRepository.findByName("processAnswersByNLP");
 			LocalDateTime currentExecute = newAutomaticProcess.getLastExecute();
-
-			ArrayList<IncomingMessage> messagesToday = incomingMessageRepository.getIncomingMessagesToday(lastExecute, currentExecute);
+			log.info("CURRENT: "+ currentExecute);
+			ArrayList<IncomingMessage> messagesToday = incomingMessageRepository.getIncomingMessagesToday(currentExecute);
 			if (messagesToday.size() > 0) {
 				log.info("EMPIEZA LÓGICA PARA CLASIFICAR POR NLP");
 				ArrayList<Integer> idArray = new ArrayList();
@@ -68,11 +68,11 @@ public class ClassifierApplication {
 					ArrayList<IncomingMessage> parsedResponse = jsonParse.convertJsonIntoArrayIncoming(responses);
 					incomingMongoRepository.insertIncomingMongoDB(mongoDB, parsedResponse);
 				}
-				automaticProcessRepository.changeStatusAutomaticProcesses(1, automaticProcess.getId());
+				// automaticProcessRepository.changeStatusAutomaticProcesses(1, automaticProcess.getId());
 				log.info("CERRADO!");
 			} else {
 				log.warn("NO HAY MENSAJES PARA PROCESAR");
-				automaticProcessRepository.changeStatusAutomaticProcesses(1, automaticProcess.getId());
+				// automaticProcessRepository.changeStatusAutomaticProcesses(1, automaticProcess.getId());
 			}
 		} else {
 			log.info("PROCESO NO ACTIVO O EN CURSO");
