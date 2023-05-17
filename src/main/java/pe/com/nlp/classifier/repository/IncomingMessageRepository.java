@@ -15,7 +15,8 @@ import java.util.ArrayList;
 public interface IncomingMessageRepository extends JpaRepository<IncomingMessage, Integer>  {
 
     @Modifying
-    @Query(value="SELECT * FROM usrsms.incoming_message WHERE received_date BETWEEN :lastExecute AND :currentExecute;\n", nativeQuery = true)
+    // @Query(value="SELECT * FROM usrsms.incoming_message WHERE received_date BETWEEN :lastExecute AND :currentExecute;\n", nativeQuery = true)
+    @Query(value="SELECT * FROM usrsms.incoming_message WHERE virtual_line = 'dev' \n", nativeQuery = true)
     ArrayList<IncomingMessage> getIncomingMessagesToday(@Param("lastExecute")LocalDateTime lastExecute, @Param("currentExecute")LocalDateTime currentExecute);
 
 }
