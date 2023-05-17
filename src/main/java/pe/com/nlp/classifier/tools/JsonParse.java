@@ -13,9 +13,8 @@ public class JsonParse {
 
     private ArrayList<IncomingMessage> messagesArray = new ArrayList<>();
     public ArrayList<IncomingMessage> convertJsonIntoArrayIncoming(JsonArray response) {
-
+        messagesArray.clear();
         for (JsonElement message: response) {
-            System.out.println(message.toString());
             IncomingMessage newIncomingMessage = new IncomingMessage();
             newIncomingMessage.setId(message.getAsJsonObject().get("id").getAsInt());
             newIncomingMessage.setTextMessage(message.getAsJsonObject().get("textMessage").getAsString());

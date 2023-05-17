@@ -33,6 +33,7 @@ public class IncomingMongoRepository {
         } catch (Exception e) {
             log.error("ERROR INSERTANDO INCOMING_MESSAGES A MONGODB");
         } finally {
+
             log.info("FINALIZÓ PROCESO INSERCIÓN A MONGODB");
         }
     }

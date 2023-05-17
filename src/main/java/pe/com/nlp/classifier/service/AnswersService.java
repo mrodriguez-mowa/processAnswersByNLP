@@ -1,7 +1,6 @@
 package pe.com.nlp.classifier.service;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class AnswersService {
     private static final Logger log = LoggerFactory.getLogger(AnswersService.class);
@@ -27,7 +27,7 @@ public class AnswersService {
 
     public void setMessagesToValidate(ArrayList<IncomingMessage> incomingMessages) {
         for(IncomingMessage message: incomingMessages) {
-            if(message.getTextMessage().toLowerCase().contains("MOWA TE INFORMA:")) {
+            if(message.getTextMessage().toUpperCase().contains("MOWA TE INFORMA:")) {
                 alwaysPositive.add(message);
             }else {
                 String pythonDate = message.getReceivedDate().toString();
@@ -36,16 +36,25 @@ public class AnswersService {
             }
         }
     }
-    public JsonArray classifyAnswersByNLP () {
+    public JsonArray classifyAnswersByNLP (String model) {
+
+        HashMap<String, String> modelHash = new HashMap<String, String>();
+        modelHash.put("sklearn","http://localhost:5000/api/trained-model" );
+        modelHash.put("tensorflow", "http://localhost:6000/api/trained-model");
+        modelHash.put("nlpjs", "http://localhost:7000/api/trained-model");
+
+        String urlToRequest = modelHash.get(model);
 
         // JSON PARA LOS MODELOS
         Gson gson = new Gson();
+        log.info("MESSAGES "+ messagesToValidate.size());
+        log.info("MODEL "+  model);
         String jsonPayload = gson.toJson(messagesToValidate);
 
         JsonArray jsonResponse = null;
 
         try {
-            URL url = new URL("http://34.232.95.220:6000/api/trained-model");
+            URL url = new URL(urlToRequest);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
@@ -69,14 +78,14 @@ public class AnswersService {
             log.debug("HTTP request completed successfully");
 
             String response = responseBuilder.toString();
-            System.out.println(response);
             jsonResponse = gson.fromJson(response, JsonArray.class);
 
         } catch (Exception e) {
-            log.error("ERROR AL ENVIAR A X MODELO");
+            log.error("ERROR AL ENVIAR A "+model+" MODELO");
             log.error(e.getMessage());
         }
     return jsonResponse;
 
     }
+
 }

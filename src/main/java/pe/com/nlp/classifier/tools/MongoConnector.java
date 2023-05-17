@@ -17,7 +17,9 @@ import java.util.Properties;
 public class MongoConnector {
     MongoClient mongoClient = null;
     MongoDatabase db = null;
-    public String URL = "mongodb+srv://marko:marko@clinica.4d0rj.mongodb.net/?retryWrites=true&w=majority";
+    // public String URL = "mongodb+srv://marko:marko@clinica.4d0rj.mongodb.net/?retryWrites=true&w=majority";
+
+    public String URL = "mongodb://127.0.0.1/incoming_nlp";
 
     private static final Logger log = LoggerFactory.getLogger(MongoConnector.class);
 

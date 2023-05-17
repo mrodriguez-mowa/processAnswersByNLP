@@ -51,8 +51,9 @@ public class ClassifierApplication {
 			// automaticProcessRepository.changeStatusAutomaticProcesses(0, automaticProcess.getId());
 			AutomaticProcess newAutomaticProcess = automaticProcessRepository.findByName("processAnswersByNLP");
 			LocalDateTime currentExecute = newAutomaticProcess.getLastExecute();
-			log.info("CURRENT: "+ currentExecute);
-			ArrayList<IncomingMessage> messagesToday = incomingMessageRepository.getIncomingMessagesToday(currentExecute);
+
+			ArrayList<IncomingMessage> messagesToday = incomingMessageRepository.getIncomingMessagesToday(lastExecute, currentExecute);
+			log.info("MENSAJES ENCONTRADOS:"+ messagesToday.size());
 			if (messagesToday.size() > 0) {
 				log.info("EMPIEZA LÓGICA PARA CLASIFICAR POR NLP");
 				ArrayList<Integer> idArray = new ArrayList();
@@ -62,12 +63,24 @@ public class ClassifierApplication {
 				// SETEANDO MENSAJES PARA USAR EN TODOS LOS MODELOS
 				answersService.setMessagesToValidate(messagesToday);
 
-				JsonArray responses = answersService.classifyAnswersByNLP();
-				log.info("MENSAJES ENCONTRADOS:"+ messagesToday.size());
-				if (responses != null) {
-					ArrayList<IncomingMessage> parsedResponse = jsonParse.convertJsonIntoArrayIncoming(responses);
+				JsonArray responsesSk = answersService.classifyAnswersByNLP("sklearn");
+				if (responsesSk != null) {
+					ArrayList<IncomingMessage> parsedResponse = jsonParse.convertJsonIntoArrayIncoming(responsesSk);
 					incomingMongoRepository.insertIncomingMongoDB(mongoDB, parsedResponse);
 				}
+
+				JsonArray responseTf = answersService.classifyAnswersByNLP("tensorflow");
+				if (responseTf != null) {
+					ArrayList<IncomingMessage> parsedResponse = jsonParse.convertJsonIntoArrayIncoming(responseTf);
+					incomingMongoRepository.insertIncomingMongoDB(mongoDB, parsedResponse);
+				}
+
+				JsonArray responseNlpJs = answersService.classifyAnswersByNLP("nlpjs");
+				if (responseNlpJs != null) {
+					ArrayList<IncomingMessage> parsedResponse = jsonParse.convertJsonIntoArrayIncoming(responseNlpJs);
+					incomingMongoRepository.insertIncomingMongoDB(mongoDB, parsedResponse);
+				}
+
 				// automaticProcessRepository.changeStatusAutomaticProcesses(1, automaticProcess.getId());
 				log.info("CERRADO!");
 			} else {
