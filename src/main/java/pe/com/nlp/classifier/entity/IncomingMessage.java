@@ -18,10 +18,11 @@ public class IncomingMessage {
     private String textMessage;
     @Getter @Setter @Column(name = "received_date")
     private LocalDateTime receivedDate;
-
-    @Getter @Setter @Transient
+    @Getter @Setter @Column(name = "nlp_status")
+    private int nlpStatus;
+    @Getter @Setter @Column(name="qualification")
     private String nlpClassification;
-    @Getter @Setter @Transient
+    @Getter @Setter @Column(name="last_model")
     private String trainedByModel;
     @Getter @Setter @Transient
     private String dateForPythonAPI;
