@@ -63,11 +63,14 @@ public class ClassifierApplication {
 
 				answersService.setMessagesToValidate(messagesToday);
 
-				JsonArray responsesSk = answersService.classifyAnswersByNLP("sklearn");
+				// JsonArray responsesSk = answersService.classifyAnswersByNLP("sklearn");
+				/*
 				if (responsesSk != null) {
 					ArrayList<IncomingMessage> parsedResponse = jsonParse.convertJsonIntoArrayIncoming(responsesSk);
 					incomingMongoRepository.insertIncomingMongoDB(mongoDB, parsedResponse);
 				}
+				*/
+
 
 				// automaticProcessRepository.changeStatusAutomaticProcesses(1, automaticProcess.getId());
 				log.info("CERRADO!");
