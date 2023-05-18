@@ -17,7 +17,7 @@ public interface IncomingMessageRepository extends JpaRepository<IncomingMessage
     @Modifying
     // @Query(value="SELECT * FROM usrsms.incoming_message WHERE received_date BETWEEN :lastExecute AND :currentExecute;\n", nativeQuery = true)
     // @Query(value="SELECT * FROM usrsms.incoming_message WHERE virtual_line = 'dev' \n", nativeQuery = true)
-    @Query(value = "SELECT * FROM usrsms.incoming_message where date_trunc('day', received_date) = CURRENT_DATE LIMIT 1", nativeQuery = true)
+    @Query(value = "SELECT * FROM usrsms.incoming_message WHERE date_trunc('day', received_date) = CURRENT_DATE AND nlp_status = 0", nativeQuery = true)
     ArrayList<IncomingMessage> getIncomingMessagesToday(@Param("lastExecute")LocalDateTime lastExecute, @Param("currentExecute")LocalDateTime currentExecute);
 
 }

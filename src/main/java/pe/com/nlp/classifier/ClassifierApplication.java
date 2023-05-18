@@ -60,24 +60,12 @@ public class ClassifierApplication {
 				for(IncomingMessage message: messagesToday){
 					idArray.add(message.getId());
 				}
-				// SETEANDO MENSAJES PARA USAR EN TODOS LOS MODELOS
+
 				answersService.setMessagesToValidate(messagesToday);
 
 				JsonArray responsesSk = answersService.classifyAnswersByNLP("sklearn");
 				if (responsesSk != null) {
 					ArrayList<IncomingMessage> parsedResponse = jsonParse.convertJsonIntoArrayIncoming(responsesSk);
-					incomingMongoRepository.insertIncomingMongoDB(mongoDB, parsedResponse);
-				}
-
-				JsonArray responseTf = answersService.classifyAnswersByNLP("tensorflow");
-				if (responseTf != null) {
-					ArrayList<IncomingMessage> parsedResponse = jsonParse.convertJsonIntoArrayIncoming(responseTf);
-					incomingMongoRepository.insertIncomingMongoDB(mongoDB, parsedResponse);
-				}
-
-				JsonArray responseNlpJs = answersService.classifyAnswersByNLP("nlpjs");
-				if (responseNlpJs != null) {
-					ArrayList<IncomingMessage> parsedResponse = jsonParse.convertJsonIntoArrayIncoming(responseNlpJs);
 					incomingMongoRepository.insertIncomingMongoDB(mongoDB, parsedResponse);
 				}
 
