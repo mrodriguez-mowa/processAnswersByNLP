@@ -22,7 +22,7 @@ public interface IncomingMessageRepository extends JpaRepository<IncomingMessage
             "AND node not ilike '%CLARO%' \n" +
             "AND node not ilike '%TEST%' \n" +
             "and msisdn NOT ilike '%ovistar%'\n" +
-            "AND nlp_status = 0 \n" +
+            // "AND nlp_status = 0 \n" +
             "AND date_trunc('day', received_date) = CURRENT_DATE ", nativeQuery = true)
     ArrayList<IncomingMessage> getIncomingMessagesToday(@Param("lastExecute")LocalDateTime lastExecute, @Param("currentExecute")LocalDateTime currentExecute);
 

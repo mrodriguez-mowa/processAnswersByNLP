@@ -1,6 +1,7 @@
 package pe.com.nlp.classifier.service;
 
 import com.google.gson.JsonArray;
+import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,7 @@ public class AnswersService {
     private static final Logger log = LoggerFactory.getLogger(AnswersService.class);
     @Setter
     ArrayList<IncomingMessage> incomingMessages = new ArrayList<>();
-    @Setter
+    @Setter @Getter
     ArrayList<IncomingMessage> alwaysPositive = new ArrayList<>();
 
     ArrayList<IncomingMessage> messagesToValidate = new ArrayList<>();
@@ -28,6 +29,8 @@ public class AnswersService {
     public void setMessagesToValidate(ArrayList<IncomingMessage> incomingMessages) {
         for(IncomingMessage message: incomingMessages) {
             if(message.getTextMessage().toUpperCase().contains("MOWA TE INFORMA:")) {
+                message.setNlpClassification("POSITIVO");
+                message.setTrainedByModel("REGLA");
                 alwaysPositive.add(message);
             }else {
                 String pythonDate = message.getReceivedDate().toString();
@@ -40,8 +43,8 @@ public class AnswersService {
 
         HashMap<String, String> modelHash = new HashMap<String, String>();
         modelHash.put("sklearn","http://localhost:5000/api/trained-model" );
-        modelHash.put("tensorflow", "http://localhost:6000/api/trained-model");
-        modelHash.put("nlpjs", "http://localhost:7000/api/trained-model");
+        // modelHash.put("tensorflow", "http://localhost:6000/api/trained-model");
+        // modelHash.put("nlpjs", "http://localhost:7000/api/trained-model");
 
         String urlToRequest = modelHash.get(model);
 
@@ -88,4 +91,14 @@ public class AnswersService {
 
     }
 
+
+    public void updateBdAlwaysPositive() {
+        int sizePositive = alwaysPositive.size();
+        if ( sizePositive > 0){
+            log.info("MENSAJES DE LLAMADAS ENCONTRADOS: "+ sizePositive);
+
+        }else{
+            log.info("NO HAY MENSAJES DE LLAMADAS PARA ACTUALIZAR");
+        }
+    }
 }

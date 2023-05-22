@@ -45,7 +45,7 @@ public class ClassifierApplication {
 		SpringApplication.run(ClassifierApplication.class, args);
 		log.info("INICIANDO CLASIFICACIÓN DE INCOMING POR NLP");
 		AutomaticProcess automaticProcess = automaticProcessRepository.findByName("processAnswersByNLP");
-		if (automaticProcess.getStatus() == 1) {
+		if (automaticProcess.getStatus() != 3) {
 			log.info("ACTUALIZANDO A ESTADO 0 EL PROCESO");
 			LocalDateTime lastExecute = automaticProcess.getLastExecute();
 			// automaticProcessRepository.changeStatusAutomaticProcesses(0, automaticProcess.getId());
@@ -63,13 +63,17 @@ public class ClassifierApplication {
 
 				answersService.setMessagesToValidate(messagesToday);
 
-				// JsonArray responsesSk = answersService.classifyAnswersByNLP("sklearn");
-				/*
+				JsonArray responsesSk = answersService.classifyAnswersByNLP("sklearn");
+
+				ArrayList<IncomingMessage> alwaysPositive = answersService.getAlwaysPositive();
+
+				incomingMongoRepository.insertIncomingMongoDB(mongoDB, alwaysPositive);
+
 				if (responsesSk != null) {
 					ArrayList<IncomingMessage> parsedResponse = jsonParse.convertJsonIntoArrayIncoming(responsesSk);
 					incomingMongoRepository.insertIncomingMongoDB(mongoDB, parsedResponse);
 				}
-				*/
+
 
 
 				// automaticProcessRepository.changeStatusAutomaticProcesses(1, automaticProcess.getId());
