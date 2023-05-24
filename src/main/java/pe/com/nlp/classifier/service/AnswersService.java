@@ -24,6 +24,10 @@ public class AnswersService {
     @Setter @Getter
     ArrayList<IncomingMessage> alwaysPositive = new ArrayList<>();
 
+    // Always Negative - relacionados a denuncias o indecopi
+
+    //
+
     ArrayList<IncomingMessage> messagesToValidate = new ArrayList<>();
 
     public void setMessagesToValidate(ArrayList<IncomingMessage> incomingMessages) {
@@ -42,7 +46,7 @@ public class AnswersService {
     public JsonArray classifyAnswersByNLP (String model) {
 
         HashMap<String, String> modelHash = new HashMap<String, String>();
-        modelHash.put("sklearn","http://localhost:5000/api/trained-model" );
+        modelHash.put("sklearn","http://34.200.218.9:6000/api/trained-model" );
         // modelHash.put("tensorflow", "http://localhost:6000/api/trained-model");
         // modelHash.put("nlpjs", "http://localhost:7000/api/trained-model");
 

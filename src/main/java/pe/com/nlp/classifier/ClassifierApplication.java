@@ -74,8 +74,6 @@ public class ClassifierApplication {
 					incomingMongoRepository.insertIncomingMongoDB(mongoDB, parsedResponse);
 				}
 
-
-
 				// automaticProcessRepository.changeStatusAutomaticProcesses(1, automaticProcess.getId());
 				log.info("CERRADO!");
 			} else {
