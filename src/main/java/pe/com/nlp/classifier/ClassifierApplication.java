@@ -47,12 +47,11 @@ public class ClassifierApplication {
 		AutomaticProcess automaticProcess = automaticProcessRepository.findByName("processAnswersByNLP");
 		if (automaticProcess.getStatus() != 3) {
 			log.info("ACTUALIZANDO A ESTADO 0 EL PROCESO");
-			LocalDateTime lastExecute = automaticProcess.getLastExecute();
 			// automaticProcessRepository.changeStatusAutomaticProcesses(0, automaticProcess.getId());
 			AutomaticProcess newAutomaticProcess = automaticProcessRepository.findByName("processAnswersByNLP");
 			LocalDateTime currentExecute = newAutomaticProcess.getLastExecute();
 
-			ArrayList<IncomingMessage> messagesToday = incomingMessageRepository.getIncomingMessagesToday(lastExecute, currentExecute);
+			ArrayList<IncomingMessage> messagesToday = incomingMessageRepository.getIncomingMessagesToday();
 			log.info("MENSAJES ENCONTRADOS:"+ messagesToday.size());
 			if (messagesToday.size() > 0) {
 				log.info("EMPIEZA LÓGICA PARA CLASIFICAR POR NLP");
@@ -72,6 +71,11 @@ public class ClassifierApplication {
 				if (responsesSk != null) {
 					ArrayList<IncomingMessage> parsedResponse = jsonParse.convertJsonIntoArrayIncoming(responsesSk);
 					incomingMongoRepository.insertIncomingMongoDB(mongoDB, parsedResponse);
+
+					// SEPARAR POR CALIFICACIÓN Y HACER LOS UPDATES RESPECTIVOS A LA BD
+
+
+
 				}
 
 				// automaticProcessRepository.changeStatusAutomaticProcesses(1, automaticProcess.getId());

@@ -33,10 +33,13 @@ public class AnswersService {
     public void setMessagesToValidate(ArrayList<IncomingMessage> incomingMessages) {
         for(IncomingMessage message: incomingMessages) {
             if(message.getTextMessage().toUpperCase().contains("MOWA TE INFORMA:")) {
-                message.setNlpClassification("POSITIVO");
+                message.setNlpClassification("ASESORAMIENTO");
                 message.setTrainedByModel("REGLA");
                 alwaysPositive.add(message);
-            }else {
+            } else if (message.getTextMessage().toUpperCase().contains("DENUNCIA")) {
+                message.setNlpClassification("PREVENCIÓN");
+                message.setTrainedByModel("REGLA");
+            } else{
                 String pythonDate = message.getReceivedDate().toString();
                 message.setDateForPythonAPI(pythonDate);
                 messagesToValidate.add(message);
@@ -103,6 +106,13 @@ public class AnswersService {
 
         }else{
             log.info("NO HAY MENSAJES DE LLAMADAS PARA ACTUALIZAR");
+        }
+    }
+
+    public void updateByClassification(ArrayList<IncomingMessage> processedMessages) {
+        ArrayList<String> foundClassifications = new ArrayList<>();
+        for(IncomingMessage incomingMessage: processedMessages) {
+
         }
     }
 }

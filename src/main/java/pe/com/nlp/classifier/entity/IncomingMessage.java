@@ -26,8 +26,5 @@ public class IncomingMessage {
     private String trainedByModel;
     @Getter @Setter @Transient
     private String dateForPythonAPI;
-    public IncomingMessage() {
-    }
-
 
 }
