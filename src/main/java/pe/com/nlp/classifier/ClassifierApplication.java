@@ -1,7 +1,6 @@
 package pe.com.nlp.classifier;
 
 import com.google.gson.JsonArray;
-import com.mongodb.client.MongoDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,15 +9,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
 import pe.com.nlp.classifier.entity.AutomaticProcess;
 import pe.com.nlp.classifier.entity.IncomingMessage;
+import pe.com.nlp.classifier.entity.MessageGroup;
 import pe.com.nlp.classifier.repository.AutomaticProcessRepository;
 import pe.com.nlp.classifier.repository.IncomingMessageRepository;
-import pe.com.nlp.classifier.repository.IncomingMongoRepository;
 import pe.com.nlp.classifier.service.AnswersService;
 import pe.com.nlp.classifier.tools.JsonParse;
-import pe.com.nlp.classifier.tools.MongoConnector;
+import pe.com.nlp.classifier.tools.NlpLabeler;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @SpringBootApplication
 @PropertySource("${path.main.properties}")
@@ -27,13 +27,13 @@ public class ClassifierApplication {
 
 	private static AutomaticProcessRepository automaticProcessRepository;
 	private static IncomingMessageRepository incomingMessageRepository;
-	private static final MongoConnector mongoConnector = new MongoConnector();
-	private static final MongoDatabase mongoDB = mongoConnector.mongoConnection();
 
-	private static final IncomingMongoRepository incomingMongoRepository = new IncomingMongoRepository();
 	private static final AnswersService answersService = new AnswersService();
 
 	private static final JsonParse jsonParse = new JsonParse();
+
+	NlpLabeler nlpLabeler = new NlpLabeler();
+
 	@Autowired
 	ClassifierApplication(AutomaticProcessRepository automaticProcessRepository, IncomingMessageRepository incomingMessageRepository) {
 		ClassifierApplication.automaticProcessRepository = automaticProcessRepository;
@@ -48,32 +48,44 @@ public class ClassifierApplication {
 		if (automaticProcess.getStatus() != 3) {
 			log.info("ACTUALIZANDO A ESTADO 0 EL PROCESO");
 			// automaticProcessRepository.changeStatusAutomaticProcesses(0, automaticProcess.getId());
-			AutomaticProcess newAutomaticProcess = automaticProcessRepository.findByName("processAnswersByNLP");
-			LocalDateTime currentExecute = newAutomaticProcess.getLastExecute();
 
 			ArrayList<IncomingMessage> messagesToday = incomingMessageRepository.getIncomingMessagesToday();
 			log.info("MENSAJES ENCONTRADOS:"+ messagesToday.size());
 			if (messagesToday.size() > 0) {
 				log.info("EMPIEZA LÓGICA PARA CLASIFICAR POR NLP");
-				ArrayList<Integer> idArray = new ArrayList();
-				for(IncomingMessage message: messagesToday){
-					idArray.add(message.getId());
-				}
 
 				answersService.setMessagesToValidate(messagesToday);
 
 				JsonArray responsesSk = answersService.classifyAnswersByNLP("sklearn");
 
-				ArrayList<IncomingMessage> alwaysPositive = answersService.getAlwaysPositive();
+				ArrayList<IncomingMessage> alwaysPositive = answersService.getAlwaysPositive(); // CODIGO 1
 
-				incomingMongoRepository.insertIncomingMongoDB(mongoDB, alwaysPositive);
+				ArrayList<ArrayList<IncomingMessage>> finalArrayMessages = new ArrayList<>();
+
+				finalArrayMessages.add(alwaysPositive);
 
 				if (responsesSk != null) {
 					ArrayList<IncomingMessage> parsedResponse = jsonParse.convertJsonIntoArrayIncoming(responsesSk);
-					incomingMongoRepository.insertIncomingMongoDB(mongoDB, parsedResponse);
 
-					// SEPARAR POR CALIFICACIÓN Y HACER LOS UPDATES RESPECTIVOS A LA BD
+					// SEPARAR POR CALIFICACIÓN Y JUNTAR ALL EN UN ARREGLO DE ARREGLOS
+					ArrayList<Integer> foundLabels = new ArrayList<>();
+					for (IncomingMessage incomingMessage: parsedResponse) {
+						if(!foundLabels.contains(incomingMessage.getToLearn())){
+							foundLabels.add(incomingMessage.getToLearn());
+						}
+					}
 
+					ArrayList<MessageGroup> messagesGroups = new ArrayList<>();
+
+
+					// MANDAR LA CLASIFICACION AL ARREGLO FINAL
+					for(Integer labelId: foundLabels) {
+						MessageGroup group = new MessageGroup();
+						group.setLabelId(labelId);
+						List<Integer> incomingIds = parsedResponse.stream().filter(el -> el.getToLearn() == labelId).map(IncomingMessage::getId).collect(Collectors.toList());
+ 						group.setMessagesId(incomingIds);
+						 messagesGroups.add(group);
+					}
 
 
 				}

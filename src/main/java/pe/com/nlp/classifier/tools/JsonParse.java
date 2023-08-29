@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 public class JsonParse {
 
+    NlpLabeler nlpLabeler = new NlpLabeler();
     private ArrayList<IncomingMessage> messagesArray = new ArrayList<>();
     public ArrayList<IncomingMessage> convertJsonIntoArrayIncoming(JsonArray response) {
         messagesArray.clear();
@@ -19,8 +20,7 @@ public class JsonParse {
             newIncomingMessage.setId(message.getAsJsonObject().get("id").getAsInt());
             newIncomingMessage.setTextMessage(message.getAsJsonObject().get("textMessage").getAsString());
             newIncomingMessage.setReceivedDate(LocalDateTime.parse(message.getAsJsonObject().get("dateForPythonAPI").getAsString()));
-            newIncomingMessage.setTrainedByModel(message.getAsJsonObject().get("model").getAsString());
-            newIncomingMessage.setNlpClassification(message.getAsJsonObject().get("qualification").getAsString());
+            newIncomingMessage.setToLearn(nlpLabeler.NlpLabelerHash(message.getAsJsonObject().get("qualification").getAsString()));
             messagesArray.add(newIncomingMessage);
         }
 

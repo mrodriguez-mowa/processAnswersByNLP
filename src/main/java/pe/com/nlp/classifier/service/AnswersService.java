@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.com.nlp.classifier.entity.IncomingMessage;
 import com.google.gson.Gson;
+import pe.com.nlp.classifier.tools.NlpLabeler;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -28,17 +29,17 @@ public class AnswersService {
 
     //
 
+    NlpLabeler nlpLabeler = new NlpLabeler();
+
     ArrayList<IncomingMessage> messagesToValidate = new ArrayList<>();
 
     public void setMessagesToValidate(ArrayList<IncomingMessage> incomingMessages) {
         for(IncomingMessage message: incomingMessages) {
             if(message.getTextMessage().toUpperCase().contains("MOWA TE INFORMA:")) {
-                message.setNlpClassification("ASESORAMIENTO");
-                message.setTrainedByModel("REGLA");
+                message.setToLearn(nlpLabeler.NlpLabelerHash("ASESORAMIENTO"));
                 alwaysPositive.add(message);
             } else if (message.getTextMessage().toUpperCase().contains("DENUNCIA")) {
-                message.setNlpClassification("PREVENCIÓN");
-                message.setTrainedByModel("REGLA");
+                message.setToLearn(nlpLabeler.NlpLabelerHash("PREVENCIÓN"));
             } else{
                 String pythonDate = message.getReceivedDate().toString();
                 message.setDateForPythonAPI(pythonDate);
@@ -48,10 +49,8 @@ public class AnswersService {
     }
     public JsonArray classifyAnswersByNLP (String model) {
 
-        HashMap<String, String> modelHash = new HashMap<String, String>();
-        modelHash.put("sklearn","http://34.200.218.9:6000/api/trained-model" );
-        // modelHash.put("tensorflow", "http://localhost:6000/api/trained-model");
-        // modelHash.put("nlpjs", "http://localhost:7000/api/trained-model");
+        HashMap<String, String> modelHash = new HashMap<>();
+        modelHash.put("sklearn","http://127.0.0.1:5000/api/process-nlp" );
 
         String urlToRequest = modelHash.get(model);
 
@@ -96,23 +95,5 @@ public class AnswersService {
         }
     return jsonResponse;
 
-    }
-
-
-    public void updateBdAlwaysPositive() {
-        int sizePositive = alwaysPositive.size();
-        if ( sizePositive > 0){
-            log.info("MENSAJES DE LLAMADAS ENCONTRADOS: "+ sizePositive);
-
-        }else{
-            log.info("NO HAY MENSAJES DE LLAMADAS PARA ACTUALIZAR");
-        }
-    }
-
-    public void updateByClassification(ArrayList<IncomingMessage> processedMessages) {
-        ArrayList<String> foundClassifications = new ArrayList<>();
-        for(IncomingMessage incomingMessage: processedMessages) {
-
-        }
     }
 }
