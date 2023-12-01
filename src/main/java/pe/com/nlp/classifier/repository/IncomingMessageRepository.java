@@ -21,7 +21,7 @@ public interface IncomingMessageRepository extends JpaRepository<IncomingMessage
             "AND node not ilike '%TEST%' \n" +
             "and msisdn NOT ilike '%movistar%'\n" +
             "AND to_learn = 0 \n" +
-            "AND date_trunc('day', received_date) = CURRENT_DATE ", nativeQuery = true)
+            "AND date_trunc('day', received_date) = CURRENT_DATE limit 100", nativeQuery = true)
     ArrayList<IncomingMessage> getIncomingMessagesToday();
 
     @Modifying

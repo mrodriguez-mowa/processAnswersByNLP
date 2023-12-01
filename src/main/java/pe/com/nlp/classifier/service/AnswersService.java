@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.com.nlp.classifier.entity.IncomingMessage;
 import com.google.gson.Gson;
+import pe.com.nlp.classifier.entity.RequestBody;
 import pe.com.nlp.classifier.tools.NlpLabeler;
 
 import java.io.BufferedReader;
@@ -24,6 +25,8 @@ public class AnswersService {
     ArrayList<IncomingMessage> incomingMessages = new ArrayList<>();
     @Setter @Getter
     ArrayList<IncomingMessage> alwaysPositive = new ArrayList<>();
+    @Setter @Getter
+    ArrayList<IncomingMessage> alwaysNegative = new ArrayList<>();
 
     // Always Negative - relacionados a denuncias o indecopi
 
@@ -40,6 +43,7 @@ public class AnswersService {
                 alwaysPositive.add(message);
             } else if (message.getTextMessage().toUpperCase().contains("DENUNCIA")) {
                 message.setToLearn(nlpLabeler.NlpLabelerHash("PREVENCIÓN"));
+                alwaysNegative.add(message);
             } else{
                 String pythonDate = message.getReceivedDate().toString();
                 message.setDateForPythonAPI(pythonDate);
@@ -50,7 +54,7 @@ public class AnswersService {
     public JsonArray classifyAnswersByNLP (String model) {
 
         HashMap<String, String> modelHash = new HashMap<>();
-        modelHash.put("sklearn","http://127.0.0.1:5000/api/process-nlp" );
+        modelHash.put("sklearn","http://20.228.191.65:5000/api/process-nlp" );
 
         String urlToRequest = modelHash.get(model);
 
@@ -58,7 +62,9 @@ public class AnswersService {
         Gson gson = new Gson();
         log.info("MESSAGES "+ messagesToValidate.size());
         log.info("MODEL "+  model);
-        String jsonPayload = gson.toJson(messagesToValidate);
+        RequestBody requestBody = new RequestBody();
+        requestBody.setData(messagesToValidate);
+        String jsonPayload = gson.toJson(requestBody);
 
         JsonArray jsonResponse = null;
 

@@ -11,9 +11,10 @@ public class NlpLabeler {
         nlpHash.put("CONFIRMADOS", 3);
         nlpHash.put("NO APLICA", 4);
         nlpHash.put("NO DESEADO", 5);
-        nlpHash.put("PREVENCIÓN", 6);
-        nlpHash.put("RENUENTE", 7);
-        nlpHash.put("VERIFICACIÓN DE NÚMERO", 8);
+        // El id 6 lo usa el MES para las llamadas
+        nlpHash.put("PREVENCIÓN", 7);
+        nlpHash.put("RENUENTE", 8);
+        nlpHash.put("VERIFICACIÓN DE NÚMERO", 9);
 
         return nlpHash.get(stringLabel);
     }

@@ -60,9 +60,7 @@ public class ClassifierApplication {
 
 				ArrayList<IncomingMessage> alwaysPositive = answersService.getAlwaysPositive(); // CODIGO 1
 
-				ArrayList<ArrayList<IncomingMessage>> finalArrayMessages = new ArrayList<>();
-
-				finalArrayMessages.add(alwaysPositive);
+				ArrayList<IncomingMessage> alwaysNegative = answersService.getAlwaysNegative();
 
 				if (responsesSk != null) {
 					ArrayList<IncomingMessage> parsedResponse = jsonParse.convertJsonIntoArrayIncoming(responsesSk);
@@ -75,19 +73,21 @@ public class ClassifierApplication {
 						}
 					}
 
-					ArrayList<MessageGroup> messagesGroups = new ArrayList<>();
-
-
 					// MANDAR LA CLASIFICACION AL ARREGLO FINAL
 					for(Integer labelId: foundLabels) {
-						MessageGroup group = new MessageGroup();
-						group.setLabelId(labelId);
 						List<Integer> incomingIds = parsedResponse.stream().filter(el -> el.getToLearn() == labelId).map(IncomingMessage::getId).collect(Collectors.toList());
- 						group.setMessagesId(incomingIds);
-						 messagesGroups.add(group);
+						incomingMessageRepository.updateNlpIncomingMessages(labelId, (ArrayList<Integer>) incomingIds);
 					}
 
+					if (alwaysPositive.size() > 0) {
+						List<Integer> positiveMessagesIds = alwaysPositive.stream().map(IncomingMessage::getId).collect(Collectors.toList());
+						incomingMessageRepository.updateNlpIncomingMessages(alwaysPositive.get(0).getToLearn(), (ArrayList<Integer>) positiveMessagesIds);
+					}
 
+					if (alwaysNegative.size() > 0) {
+						List<Integer> negativeMessagesIds = alwaysNegative.stream().map(IncomingMessage::getId).collect(Collectors.toList());
+						incomingMessageRepository.updateNlpIncomingMessages(alwaysNegative.get(0).getToLearn(), (ArrayList<Integer>) negativeMessagesIds);
+					}
 				}
 
 				// automaticProcessRepository.changeStatusAutomaticProcesses(1, automaticProcess.getId());
